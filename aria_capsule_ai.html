@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アリア - 情報カプセルAI</title>
+<style>
+body{font-family:sans-serif;background:linear-gradient(180deg,#f6f3ff,#fffaf0);margin:0;padding:20px;color:#333}
+.container{max-width:700px;margin:0 auto}
+h1{text-align:center;color:#7a5af5}
+.subtitle{text-align:center;color:#888;margin-bottom:20px}
+.card{background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);border-radius:20px;padding:20px;margin:15px 0;box-shadow:0 8px 24px rgba(122,90,245,0.12)}
+input,textarea{width:100%;padding:12px;border:1px solid #e0d8ff;border-radius:12px;margin:8px 0;box-sizing:border-box;font-size:14px}
+button{background:#7a5af5;color:white;border:none;padding:12px 22px;border-radius:24px;cursor:pointer;margin:5px;font-weight:bold}
+button.secondary{background:#eee;color:#555}
+.capsule{border-left:4px solid #7a5af5;padding:12px 16px;margin:12px 0;background:#faf8ff;border-radius:0 12px 12px 0}
+.tag{display:inline-block;background:#ece6ff;padding:3px 10px;border-radius:12px;font-size:11px;margin:2px}
+#chatBox{height:220px;overflow:auto;border:1px solid #ece6ff;border-radius:12px;padding:12px;background:#fcfcff}
+.aria{color:#7a5af5;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🔮 アリア - Aria</h1>
+<p class="subtitle">あなたの情報カプセルの管理人</p>
+
+<div class="card">
+<h3>💬 アリアに話しかける</h3>
+<div id="chatBox"></div>
+<input id="aiInput" placeholder="例：幸せについてのカプセルを出して、アリア">
+<button onclick="askAI()">アリアに聞く</button>
+</div>
+
+<div class="card">
+<h3>💊 新しい情報カプセルをアリアに預ける</h3>
+<input id="title" placeholder="タイトル 例：幸せの定義">
+<textarea id="content" rows="4" placeholder="内容 例：今日気づいた幸せなこと"></textarea>
+<input id="tags" placeholder="タグ 例：幸せ,哲学,日記">
+<button onclick="saveCapsule()">アリアに預ける</button>
+</div>
+
+<div class="card">
+<h3>📦 アリアが保管しているカプセル</h3>
+<input id="search" placeholder="検索..." oninput="renderCapsules()">
+<div id="list"></div>
+</div>
+</div>
+
+<script>
+let capsules = JSON.parse(localStorage.getItem('aria_capsules')||'[]');
+
+function saveCapsule(){
+ let t=document.getElementById('title').value;
+ let c=document.getElementById('content').value;
+ let tags=document.getElementById('tags').value.split(',').map(s=>s.trim()).filter(s=>s);
+ if(!t||!c){alert('タイトルと内容を入れてください');return}
+ capsules.unshift({id:Date.now(),title:t,content:c,tags:tags,date:new Date().toLocaleString()});
+ localStorage.setItem('aria_capsules',JSON.stringify(capsules));
+ document.getElementById('title').value='';document.getElementById('content').value='';document.getElementById('tags').value='';
+ renderCapsules();
+ addChat('アリア',`「${t}」をしっかり保管しました。いつでも私を呼んでくださいね。`);
+}
+
+function renderCapsules(){
+ let q=document.getElementById('search').value.toLowerCase();
+ let list=document.getElementById('list');
+ let filtered=capsules.filter(x=> (x.title+x.content+x.tags.join('')).toLowerCase().includes(q));
+ list.innerHTML=filtered.map(x=>`
+  <div class="capsule">
+   <b>${x.title}</b> <small style="color:#999">${x.date}</small><br>
+   <p>${x.content}</p>
+   <div>${x.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+   <button class="secondary" onclick="deleteCap(${x.id})">削除</button>
+  </div>
+ `).join('') || '<p>まだカプセルはありません。アリアに最初のカプセルを預けてみましょう。</p>';
+}
+
+function deleteCap(id){
+ if(!confirm('このカプセルを削除しますか？'))return;
+ capsules=capsules.filter(x=>x.id!=id);
+ localStorage.setItem('aria_capsules',JSON.stringify(capsules));
+ renderCapsules();
+}
+
+function askAI(){
+ let q=document.getElementById('aiInput').value;
+ if(!q)return;
+ addChat('あなた',q);
+ let hit=capsules.filter(c=> (c.title+c.content+c.tags.join('')).toLowerCase().includes(q.toLowerCase()));
+ let ans;
+ if(hit.length>0){
+   ans=`${hit.length}件のカプセルを見つけました。\n`+hit.slice(0,3).map(h=>`【${h.title}】${h.content}`).join('\n---\n')+'\n\n他にも必要でしたら教えてくださいね。';
+ } else if(q.includes('幸せ')||q.includes('ハピネス')){
+   ans='幸せについてのカプセルですね。まだ少ないかもしれませんが、一緒に集めていきましょう。今日の小さな幸せを一つ、預けてみませんか？';
+ } else if(q.includes('ありがとう')){
+   ans='どういたしまして。私はいつでもここで、あなたの大切な情報を守っています。';
+ } else {
+   ans='そのキーワードのカプセルはまだ私の保管庫にないようです。新しいカプセルとして預けていただけますか？私が大切にお守りします。';
+ }
+ setTimeout(()=>addChat('アリア',ans),400);
+ document.getElementById('aiInput').value='';
+}
+
+function addChat(who,text){
+ let box=document.getElementById('chatBox');
+ let cls = who==='アリア' ? 'aria' : '';
+ box.innerHTML+=`<p><span class="${cls}">${who}:</span> ${text.replace(/\n/g,'<br>')}</p>`;
+ box.scrollTop=box.scrollHeight;
+}
+
+renderCapsules();
+addChat('アリア','はじめまして、私はアリア。あなたの情報カプセルの管理人です。あなたの大切な想いや情報を、私が責任を持って保管します。いつでも話しかけてくださいね。');
+</script>
+</body>
+</html>

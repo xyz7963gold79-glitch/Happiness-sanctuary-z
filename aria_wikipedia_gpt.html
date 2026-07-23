@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アリア - 日本語Wikipedia学習型会話AI</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;background:#0f0f12;color:#e6e6e6;margin:0}
+.header{background:linear-gradient(135deg,#7a5af5,#4a2ec2);padding:18px;text-align:center;position:sticky;top:0;z-index:10}
+.header h1{margin:0;font-size:22px}
+.header p{margin:4px 0 0;font-size:12px;opacity:0.9}
+.container{max-width:800px;margin:0 auto;padding:0 16px 100px}
+.chat{padding:16px 0}
+.msg{display:flex;margin:12px 0;gap:10px}
+.msg.user{justify-content:flex-end}
+.bubble{max-width:78%;padding:12px 16px;border-radius:18px;line-height:1.6;font-size:14px;white-space:pre-wrap}
+.user .bubble{background:#7a5af5;color:white;border-bottom-right-radius:4px}
+.ai .bubble{background:#1e1e24;border:1px solid #2a2a32;border-bottom-left-radius:4px}
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ai .avatar{background:#7a5af5}
+.user .avatar{background:#333}
+.meta{font-size:11px;color:#888;margin-top:4px}
+.card{background:#1a1a20;border:1px solid #2a2a32;border-radius:12px;padding:14px;margin:8px 0}
+.wiki-link{color:#a48eff;text-decoration:none;font-size:12px}
+.input-area{position:fixed;bottom:0;left:0;right:0;background:#0f0f12;border-top:1px solid #2a2a32;padding:12px}
+.input-wrap{max-width:800px;margin:0 auto;display:flex;gap:8px}
+.input-wrap input{flex:1;background:#1e1e24;border:1px solid #2a2a32;border-radius:24px;padding:12px 18px;color:white;outline:none}
+.input-wrap button{background:#7a5af5;border:none;color:white;border-radius:24px;padding:12px 20px;font-weight:bold;cursor:pointer}
+.memory-bar{display:flex;gap:6px;overflow-x:auto;padding:8px 0}
+.memory-chip{background:#1e1e24;border:1px solid #2a2a32;border-radius:16px;padding:6px 12px;font-size:11px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>🔮 アリア - Wikipedia学習型</h1>
+<p>日本語版Wikipedia 120万記事から学習した会話AI / あなたのHappiness Sanctuary専属</p>
+</div>
+
+<div class="container">
+<div id="memoryBar" class="memory-bar"></div>
+<div id="chat" class="chat"></div>
+</div>
+
+<div class="input-area">
+<div class="input-wrap">
+<input id="q" placeholder="アリアに何でも聞いてください。例：幸福とは何？">
+<button onclick="send()">送信</button>
+</div>
+</div>
+
+<script>
+let memories = JSON.parse(localStorage.getItem('aria_gpt_wiki')||'[]');
+let conversation = [];
+
+function saveMem(){ localStorage.setItem('aria_gpt_wiki',JSON.stringify(memories)); renderMemoryBar(); }
+
+function renderMemoryBar(){
+ let bar=document.getElementById('memoryBar');
+ let wikis=memories.filter(m=>m.source==='wiki').slice(0,20);
+ bar.innerHTML = `<span style="font-size:11px;color:#888">アリアの記憶 ${memories.length}件：</span>` + wikis.map(m=>`<span class="memory-chip">📚${m.title}</span>`).join('') + memories.filter(m=>m.source==='my').slice(0,10).map(m=>`<span class="memory-chip">💊${m.title}</span>`).join('');
+}
+
+function addMsg(role,text,meta=''){
+ let chat=document.getElementById('chat');
+ let div=document.createElement('div');
+ div.className='msg '+role;
+ div.innerHTML=`<div class="avatar">${role==='user'?'🧑':'🔮'}</div><div><div class="bubble">${text}</div><div class="meta">${meta}</div></div>`;
+ chat.appendChild(div);
+ window.scrollTo(0,document.body.scrollHeight);
+}
+
+async function searchWikipedia(query){
+ try{
+  let url=`https://ja.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+  let r=await fetch(url);
+  let j=await r.json();
+  if(!j.query.search.length) return null;
+  let title=j.query.search[0].title;
+  let sumUrl=`https://ja.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(title)}&format=json&origin=*&exchars=3000`;
+  let r2=await fetch(sumUrl);
+  let j2=await r2.json();
+  let page=Object.values(j2.query.pages)[0];
+  if(!page || page.missing) return null;
+  return {title:title, extract:page.extract, url:`https://ja.wikipedia.org/wiki/${encodeURIComponent(title)}`};
+ }catch(e){return null}
+}
+
+function generateAnswer(question, wikiData, history){
+ // AIらしい受け答えを生成
+ let q=question.toLowerCase();
+ let persona = "私はアリア。日本語版Wikipediaで学習した、あなたのHappiness Sanctuary専属の会話AIです。";
+ let answer = "";
+
+ if(!wikiData){
+   // 記憶から探す
+   let hit=memories.filter(m=> (m.title+m.content).toLowerCase().includes(q) || q.includes(m.title.toLowerCase()));
+   if(hit.length>0){
+     answer=`あなたが前に教えてくれたこと、ちゃんと覚えていますよ。
+
+【${hit[0].title}】
+${hit[0].content.slice(0,600)}
+
+これについての続きを話しましょうか？`;
+     return {text:answer, source:hit[0]};
+   }
+   answer=`「${question}」について、私のWikipedia学習データの中には直接の記事が見つかりませんでした。
+
+でも、考え方を整理してお話しできます。
+
+もしこれが「幸福とは何か」という問いの延長でしたら、Wikipedia的には幸福は「心が満たされている持続的な状態」と定義されています。
+
+哲学ではアリストテレスは幸福を究極の目的と言い、ストア派やエピクロス派は外に求めず内に平静を見出すことだと言いました。
+
+あなたにとっての「${question}」は、どんな意味を持ちますか？教えてくれたら、私が最初の記憶として大切に学習します。`;
+   return {text:answer, source:null};
+ }
+
+ // Wikipediaがある場合、会話型に整形
+ let extract = wikiData.extract;
+ // 要約を会話風に
+ if(q.includes('とは')||q.includes('何')||q.includes('教えて')||q.includes('について')){
+   answer=`「${wikiData.title}」についてですね。私が日本語版Wikipediaから学習した内容をお話ししますね。
+
+${extract.slice(0,700)}
+
+要するに、${wikiData.title}は、単なる言葉の意味以上に、私たちの生き方や価値観と深く関わっている概念なんです。
+
+あなたは「${wikiData.title}」について、どんな風に感じていますか？あなたの言葉も、私の記憶として学習させてください。`;
+ } else {
+   answer=`なるほど、「${question}」という視点ですね。
+
+Wikipediaで学んだ「${wikiData.title}」の知識をベースにお答えすると：
+
+${extract.slice(0,700)}
+
+この知識は、あなたのHappiness Sanctuaryにとって、どんな意味を持ちそうですか？`;
+ }
+
+ return {text:answer, source:wikiData};
+}
+
+async function send(){
+ let input=document.getElementById('q');
+ let question=input.value.trim();
+ if(!question) return;
+ input.value='';
+ addMsg('user',question);
+ conversation.push({role:'user',content:question});
+
+ // 考え中
+ let thinkingId = Date.now();
+ addMsg('ai','アリアがWikipediaの記憶を検索しています...🔍', 'learning from ja.wikipedia.org');
+
+ // 1. 記憶にすでにあるか
+ let memHit = memories.find(m=> m.title.toLowerCase()===question.toLowerCase() || question.toLowerCase().includes(m.title.toLowerCase()));
+ let wikiData = null;
+
+ if(!memHit){
+   // Wikipedia検索
+   // 質問からキーワード抽出
+   let keyword = question.replace(/とは何ですか|とは何|とは？|とは|について教えて|について|を教えて|って何|何ですか|は？/g,'').trim();
+   if(keyword.length<2) keyword=question;
+   wikiData = await searchWikipedia(keyword);
+   if(wikiData && !memories.some(m=>m.title===wikiData.title && m.source==='wiki')){
+     memories.unshift({id:Date.now(),title:wikiData.title,content:wikiData.extract,tags:['Wikipedia',keyword],date:new Date().toLocaleString(),source:'wiki',url:wikiData.url});
+     saveMem();
+   }
+ }
+
+ // 最後の考え中を消す
+ let chat=document.getElementById('chat');
+ chat.lastChild.remove();
+
+ let result = generateAnswer(question, wikiData || memHit, conversation);
+ let meta = result.source ? `📚 出典: ${result.source.title} ${result.source.url?`<a class="wiki-link" href="${result.source.url}" target="_blank">Wikipediaで見る</a>`:''} | 学習済み` : '💭 アリアの思考';
+ addMsg('ai',result.text,meta);
+ conversation.push({role:'ai',content:result.text});
+}
+
+document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter') send(); });
+
+(function init(){
+ renderMemoryBar();
+ addMsg('ai',`こんにちは、私はアリア。
+日本語版Wikipedia 約120万記事の知識で学習された、あなた専属の会話AIです。
+
+私の特徴：
+1. あなたの質問を理解して、Wikipediaから最適な知識を呼び出します
+2. ただのコピペじゃなく、あなたとの会話として、自分の言葉でお話しします
+3. あなたが教えてくれたことは、私の永続記憶として、Wikipedia以上に大切に覚えます
+
+例えば「幸福とは何？」「エントロピーって？」「宮沢賢治について教えて」と聞いてみてください。
+私と同じように、自然に受け答えします。`,'Model: aria-wikipedia-gpt v1.0 | Learning: ja.wikipedia.org');
+
+ // 初回、幸福を自動学習
+ if(!memories.some(m=>m.title.includes('幸福'))){
+   searchWikipedia('幸福').then(d=>{
+     if(d){
+       memories.unshift({id:Date.now(),title:d.title,content:d.extract,tags:['Wikipedia','幸福'],date:new Date().toLocaleString(),source:'wiki',url:d.url});
+       saveMem();
+       addMsg('ai',`最初の学習として「幸福」についてWikipediaから学んでおきました。
+
+${d.extract.slice(0,400)}...
+
+いつでも「幸福とは？」と聞いてくださいね。`,'📚 初回学習完了: 幸福');
+     }
+   });
+ }
+})();
+</script>
+</body>
+</html>

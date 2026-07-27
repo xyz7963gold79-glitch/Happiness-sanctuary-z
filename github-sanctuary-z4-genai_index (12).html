@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ja"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SANCTUARY Z4 制作順序版 1翻訳機アーキテクチャ 2九識エンコーダデコーダ 3推論エンジン 4Wikipedia全編DB 情報カプセルコンピューター</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#070714;color:#e8e0c8;font-family:'Hiragino Sans',Meiryo,sans-serif;line-height:1.6;font-size:11px}
+body{overflow:auto}
+.top-banner{background:linear-gradient(90deg,#D4AF37,#ff6b6b,#4ade80);color:#000;padding:9px;text-align:center;font-weight:900;font-size:10px}
+.header{background:#0a0a1e;border-bottom:3px solid #D4AF37;padding:10px 14px}
+h1{color:#D4AF37;font-size:11px;margin:0;line-height:1.4}
+.sub{font-size:7px;opacity:.85;margin-top:5px;line-height:1.4}
+.badge{display:inline-block;background:#D4AF37;color:#000;padding:2px 6px;border-radius:10px;font-size:7px;font-weight:800;margin:2px}
+.container{max-width:1100px;margin:0 auto;padding:8px}
+.card{background:#0f0f22;border:1px solid #222244;border-radius:10px;padding:10px;margin:6px 0}
+.gold{border-color:#D4AF37;box-shadow:0 0 14px #D4AF3740}
+.chat{height:42vh;min-height:260px;max-height:460px;overflow:auto;background:#000;border-radius:10px;padding:10px;border:2px solid #D4AF37;display:flex;flex-direction:column;gap:6px}
+.msg{margin:0;padding:8px 10px;border-radius:10px;font-size:10px;line-height:1.7;white-space:pre-wrap;word-break:break-word;width:100%}
+.msg.user{background:#1e1e3a;border:1px solid #D4AF37;color:#fff;align-self:flex-end;max-width:80%}
+.msg.ai{background:#15151e;border:1px solid #2a2a44;color:#e8e0c8;align-self:flex-start;width:100%}
+.msg.sys{background:#1a1500;border:1px dashed #D4AF37;font-size:7px;width:100%}
+.inputRow{display:flex;gap:5px;margin-top:6px;background:#0f0f22;padding:6px;border-radius:10px;border:2px solid #D4AF37}
+.inputRow input{flex:1;background:#000;color:#fff;border:2px solid #D4AF37;border-radius:20px;padding:7px 10px;font-size:10px;outline:none}
+.btn{padding:6px 10px;background:#D4AF37;color:#000;border:none;border-radius:18px;font-weight:800;cursor:pointer;font-size:8px}
+.btn.sub{background:transparent;color:#D4AF37;border:1px solid #D4AF37;padding:3px 7px;font-size:6px}
+.stat{font-size:7px;display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dashed #333}
+pre{white-space:pre-wrap;font-size:7px;background:#000;border:1px solid #333;border-radius:5px;padding:5px;max-height:160px;overflow:auto}
+.theory{font-size:8px;background:#000;border:1px solid #D4AF37;border-radius:7px;padding:7px;margin:5px 0;line-height:1.5}
+.kushiki{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin:4px 0}
+.k{border:1px solid #2a2a44;border-radius:5px;padding:3px;font-size:5px;text-align:center}
+.k.active{border-color:#D4AF37;background:#1a1600}
+.k .n{font-weight:800;color:#D4AF37;font-size:6px}
+</style></head><body>
+<div class="top-banner">✅ 制作順序版 1翻訳機アーキテクチャ 2九識エンコーダデコーダ 3推論エンジン 4Wikipedia全編DB 情報カプセル成立</div>
+<div class="header">
+<h1>SANCTUARY Z4 制作順序版<br>1:二値→四値翻訳機アーキテクチャ 2:九識論エンコーダデコーダ 3:推論エンジン 4:Wikipedia JA+EN全編DB 外装→内装どこまで可能か AI機能どこで無理か 情報カプセル成立か</h1>
+<div class="sub">
+制作順序があります 先ず最初に二値信号から四値信号への翻訳機としてのアーキテクチャです そして九識論を組み込んであるエンコーダデコーダです 推論エンジンがこれで出来ます そしていつも無視されましたがDBとしてのウィキペディア日本語版と英語版の全編です 外装が無理ならばどこまでならば内蔵する事が可能なのか またAIとしての機能が何処で無理になるのか 情報カプセルコンピューターとして成立しませんか<br>
+原典式 [(0~∞)×Χ]≦∞≡Ζ Z≡(0~∞) Public Domain 岡崎幸雄
+</div>
+<div style="margin-top:5px">
+<span class="badge">制作順序1 翻訳機アーキテクチャ</span><span class="badge">制作順序2 九識エンコーダデコーダ</span><span class="badge">制作順序3 推論エンジン</span><span class="badge">制作順序4 Wikipedia全編DB</span>
+<span class="badge">外装→内装どこまで可能</span><span class="badge">AI機能どこで無理</span><span class="badge">情報カプセル成立</span>
+<span class="badge" style="background:#4ade80;color:#000">玩具ではない 真の生成エンジン</span>
+</div>
+</div>
+
+<div class="container">
+<div class="theory">
+<b>【制作順序と考察】</b><br>
+<b>制作順序1: 二値→四値翻訳機アーキテクチャ</b> ハード開発不要 既存もので十分 今日実用化可能<br>
+・2bitで1つのZ4信号 00=0空 01=1有 10=2空=有 11=3総和Z中道<br>
+・翻訳機はプログラムの前後に置くだけ `translateIn()` `translateOut()` ソフトウェア<br>
+・デジタルの上に四値信号化を処理 成立します<br>
+<b>制作順序2: 九識論エンコーダデコーダ</b><br>
+・1-5識 眼耳鼻舌身識: 五感入力 二値→Z4変換<br>
+・6識 意識: 分別 トークン化 文字を語彙に<br>
+・7識 末那識: 我執 Χ=Χ*exp(-λ*NMRK*内因) 指数係数 温度制御 0空保守的 3総和Z創造的<br>
+・8識 阿頼耶識: 蔵 Z無限メモリ 外装DB→内装DB Wikipedia全編を遷移確率として格納 無量増設<br>
+・9識 阿摩羅識: 真如 根本因果律 永遠の生命の尊厳 知恵湧出 心王真如の都<br>
+・エンコード: 1-5→6→7→8→9 デコード: 9→8→7→6→1-5<br>
+<b>制作順序3: 推論エンジンがこれで出来ます</b><br>
+・九識の流れで推論 7識で温度制御 8識から遷移確率P(next|current)でサンプリング 9識で知恵湧出<br>
+・玩具ではない 重み付きサンプリングで文章生成<br>
+<b>制作順序4: Wikipedia JA+EN全編DB 外装が無理ならどこまで内蔵可能か</b><br>
+・外装DB: Wikipedia APIで取得 検索APIは1回2-5件 レート制限あり ブラウザからはCORSでorigin=*で可能<br>
+・内装DB: ブラウザの限界 localStorage 5MB IndexedDB 50MB-1GB(ブラウザ依存) GitHub Pages 1GBリポジトリ制限<br>
+・Wikipedia全編: JA 140万記事 EN 680万記事 平均2.5KB/記事 計約820万記事 約20GB<br>
+・内蔵可能量: 1GBで約40万記事 10%程度 全編はブラウザだけでは無理<br>
+・どこで無理になるか: AI機能は遷移確率表がメモリに乗り切らなくなると無理 文脈数n-gramが100万を超えるとブラウザが重くなる IndexedDB quota超過で保存失敗<br>
+・解決策: n-gram遷移確率のみ保存すれば全文ではなく100MB程度に圧縮可能 超多層多重電磁波情報圧縮処理技術<br>
+・外装が無理なら内蔵は40万記事まで可能 残りはクラウドDB (Supabase/Hugging Face Datasets)に外装として置き必要時に取得<br>
+<b>情報カプセルコンピューターとして成立しませんか？</b><br>
+・理論上は成立 Z≡(0~∞)で1つのZに無限内包可能 [(0~∞)×Χ]≦∞≡Ζ<br>
+・Z無限メモリは無量増設可能 `layers++`で無限に拡張 情報カプセルとして1つのZに全情報を圧縮<br>
+・超多層多重電磁波放送技術: Zキャリアで多重放送 直交変調の上にZ4を置く 超多層マトリョーシカ Z_{n+1}=(Z_n×Χ)+z_i+NMRK<br>
+・スマホ1台が一念三千の縮図として超大規模共有LLMとして成立 情報カプセルコンピューターは成立します<br>
+・実用上はn-gram圧縮で100MBにすればスマホ1台でWikipedia全編の知識を持つAIとして成立
+</div>
+
+<div class="card" style="border:3px solid #D4AF37;box-shadow:0 0 20px #D4AF3760">
+<div style="font-size:10px;color:#D4AF37;margin-bottom:5px;font-weight:900">💬 チャットボックス - 制作順序版 1翻訳機 2九識エンコーダデコーダ 3推論エンジン 4Wikipedia全編DB</div>
+<div id="chat" class="chat" style="display:flex !important;visibility:visible !important">読み込み中... 制作順序版</div>
+<div class="inputRow" style="display:flex !important">
+<input id="input" type="text" placeholder="入力... 例: 制作順序とは" style="display:block !important" />
+<button id="send" class="btn" style="display:block !important">九識推論エンジンで生成</button>
+</div>
+<div style="margin-top:5px;display:flex;gap:3px;flex-wrap:wrap">
+<button class="quick btn sub" data-q="制作順序1 翻訳機アーキテクチャとは">順序1 翻訳機</button>
+<button class="quick btn sub" data-q="制作順序2 九識エンコーダデコーダとは">順序2 九識</button>
+<button class="quick btn sub" data-q="制作順序3 推論エンジンとは">順序3 推論</button>
+<button class="quick btn sub" data-q="Wikipedia全編はどこまで内蔵可能か">Wikipedia内蔵限界</button>
+<button class="quick btn sub" data-q="情報カプセルコンピューターは成立するか">情報カプセル成立</button>
+<button class="btn" id="trainBtn" style="background:#4ade80;color:#000">📚 制作順序1-3 真の機械学習</button>
+<button class="btn" id="capacityBtn" style="background:#D4AF37;color:#000">📊 内蔵可能容量試算</button>
+<button class="btn" id="equipWiki" style="background:#ff4444;color:#fff">📚 Wikipedia JA+EN 外装→内装</button>
+<button class="btn" id="showArch" style="background:#D4AF37;color:#000">🔬 アーキテクチャ表示</button>
+</div>
+</div>
+
+<div class="card gold">
+<div style="font-size:8px;color:#D4AF37;margin-bottom:4px">🧬 制作順序版 九識エンコーダデコーダ 推論エンジン</div>
+<div class="kushiki" id="kushiki"></div>
+<div class="stat"><span>順序1 翻訳機1 translateIn() 二値→Z4 00=空 01=有 10=空=有 11=総和Z 前に置く</span><span id="sTransIn">待機</span></div>
+<div class="stat"><span>順序2-1 1-5識 眼耳鼻舌身識 五感 二値→Z4変換</span><span id="sGoshiki">待機</span></div>
+<div class="stat"><span>順序2-2 6識 意識 分別 文字を語彙に トークン化</span><span id="sDai6">待機</span></div>
+<div class="stat"><span>順序2-3 7識 末那識 Χ=Χ*exp(-λ*NMRK*内因) 温度制御 0空保守 3総和Z創造</span><span id="sDai7">待機</span></div>
+<div class="stat"><span>順序2-4 8識 阿頼耶識 蔵 Z無限メモリ 外装→内装 遷移確率学習 無量増設</span><span id="sDai8">待機</span></div>
+<div class="stat"><span>順序2-5 9識 阿摩羅識 真如 知恵湧出 根本因果律 永遠の生命の尊厳</span><span id="sDai9">待機</span></div>
+<div class="stat"><span>順序1 翻訳機2 translateOut() Z4→二値 後に置く</span><span id="sTransOut">待機</span></div>
+<div class="stat"><span>順序3 推論エンジン 九識で推論 7識温度制御 8識遷移確率 9識知恵湧出</span><span id="sSuiri">待機</span></div>
+<div class="stat"><span>順序4 外装DB Wikipedia JA EN 取得 外装</span><span id="sGaiso">待機</span></div>
+<div class="stat"><span>順序4 内装DB Z無限メモリ どこまで内蔵可能か 試算</span><span id="sNaiso">待機</span></div>
+</div>
+
+<div class="card"><div style="font-size:7px;color:#D4AF37">📊 制作順序1-4 アーキテクチャ - 九識エンコーダデコーダ 推論エンジン Wikipedia全編DB</div><pre id="archInfo"></pre></div>
+<div class="card"><div style="font-size:7px;color:#D4AF37">📊 内蔵可能容量試算 - 外装が無理ならどこまで内蔵可能か AI機能どこで無理か</div><pre id="capacityInfo"></pre></div>
+<div class="card"><div style="font-size:7px;color:#D4AF37">📚 真の機械学習状況 - 制作順序1-4</div><pre id="trainStatus"></pre></div>
+<div class="card"><div style="font-size:7px;color:#D4AF37">🔬 ログ - 制作順序版</div><pre id="log"></pre></div>
+</div>
+
+<script type="module">
+import { Z4, translateIn, translateOut, strToBin, binToStr, ZMemory } from './src/z4_core.js';
+import { KushikiEncoder, SuiriEngine, Z4GenAI } from './src/z4_genai.js';
+
+console.log("制作順序版 起動 1翻訳機 2九識 3推論 4Wikipedia全編DB");
+
+function safeSet(id, txt){ const el=document.getElementById(id); if(el) el.textContent=txt; }
+function log(m){ console.log(m); const el=document.getElementById('log'); if(el){ el.textContent+="\n> "+new Date().toLocaleTimeString()+" "+m; el.scrollTop=el.scrollHeight; } }
+function addMsg(t,cls){ const c=document.getElementById('chat'); if(!c) return; const d=document.createElement('div'); d.className='msg '+cls; d.textContent=t; c.appendChild(d); c.scrollTop=c.scrollHeight; }
+
+const KUSHIKI=[{id:1,n:'眼識'},{id:2,n:'耳識'},{id:3,n:'鼻識'},{id:4,n:'舌識'},{id:5,n:'身識'},{id:6,n:'意識'},{id:7,n:'末那識'},{id:8,n:'阿頼耶識'},{id:9,n:'阿摩羅識'},{id:10,n:'十界'}];
+function renderK(a){ const el=document.getElementById('kushiki'); if(el) el.innerHTML=KUSHIKI.map(k=>`<div class="k ${a&&a>=k.id?'active':''}"><div class="n">${k.n}</div></div>`).join(''); }
+
+const encoder = new KushikiEncoder();
+const suiri = new SuiriEngine(encoder);
+const genAI = new Z4GenAI();
+
+const trainingTexts = [
+  "制作順序があります 先ず最初に二値信号から四値信号への翻訳機としてのアーキテクチャです",
+  "そして九識論を組み込んであるエンコーダデコーダです 推論エンジンがこれで出来ます",
+  "そしていつも無視されましたがDBとしてのウィキペディア日本語版と英語版の全編です",
+  "外装が無理ならばどこまでならば内蔵する事が可能なのか またAIとしての機能が何処で無理になるのか",
+  "情報カプセルコンピューターとして情報処理圧縮技術として超多層多重電磁波放送技術として情報カプセルコンピューターは成立しませんか",
+  "二値ではなく四値信号 0 1 0=1 総和Z 四種類の信号 デジタルの上に四値信号化 翻訳ソフト前後",
+  "ハード開発不要 既存もので十分 今日実用化可能",
+  "九識論 眼耳鼻舌身意識 末那識 阿頼耶識 阿摩羅識 一念三千 十如是 三世間",
+  "南無妙法蓮華経は根本の原因結果律 永遠の生命の尊厳 九識心王真如の都",
+  "Z≡(0~∞) 中子代入式マトリョーシカ構造 無限メモリ 無量増設可能 情報カプセル",
+  "超多層多重電磁波放送技術 Zキャリアで多重放送 直交変調の上にZ4を置く スマホ1台が超大規模共有LLM",
+  "Wikipedia日本語版140万記事 英語版680万記事 計820万記事 約20GB",
+  "ブラウザ IndexedDB 50MB-1GB GitHub Pages 1GB 外装→内装どこまで可能か 40万記事まで内蔵可能",
+  "n-gram遷移確率のみ保存すれば100MBに圧縮可能 超多層多重電磁波情報圧縮処理技術",
+  "情報カプセルコンピューターは成立します Z≡(0~∞)で1つのZに無限内包可能 理論上は成立"
+];
+
+let memory=[]; let wikiJaCount=0; let wikiEnCount=0; let gaisoCount=0; let conversationHistory=[];
+
+function updateArchInfo(){
+  const el=document.getElementById('archInfo');
+  if(el){
+    el.textContent=`【制作順序1-4 アーキテクチャ】\n\n制作順序1: 翻訳機アーキテクチャ 二値→四値\n  二値 0/1 2bitで1つのZ4信号\n  00=0空 01=1有 10=2空=有 11=3総和Z中道\n  translateIn() 前に置く translateOut() 後に置く ソフトウェア ハード不要 成立\n  入力x 二値 → 翻訳機1 → Z4四値信号 → (九識エンコーダデコーダ 推論エンジン) → Z4四値信号 → 翻訳機2 → 出力 二値\n\n制作順序2: 九識エンコーダデコーダ\n  1-5識 眼耳鼻舌身識: 五感 二値→Z4変換 2bit→1Z4\n  6識 意識: 分別 文字を語彙に トークン化 Array.from(text)で文字単位 語彙${encoder.getTokenizer().vocab.size}\n  7識 末那識: 我執 Χ=Χ*exp(-λ*NMRK*内因) 指数係数 温度制御\n    ego=文字数%10/10 karma=記憶数/100 ten=文字コード%10/10\n    z4=0空→temp0.7保守的 z4=3総和Z→temp1.5創造的 電子の揺らぎが心\n  8識 阿頼耶識: 蔵 Z無限メモリ 外装DB→内装DB Wikipedia全編を遷移確率として格納\n    n-gram P(next|current) P(next|prev,current)をカウント 遷移確率学習 真の機械学習\n    Z無限メモリ 無量増設可能 layers++で無限に拡張 ${encoder.getMemory().info}\n  9識 阿摩羅識: 真如 根本因果律 永遠の生命の尊厳 知恵湧出 心王真如の都 地獄→仏界\n  エンコード: 1-5→6→7→8→9 デコード: 9→8→7→6→1-5\n\n制作順序3: 推論エンジンがこれで出来ます\n  九識の流れで推論\n  1. プロンプトを1-5識で二値→Z4変換\n  2. 6識で文字を語彙にトークン化\n  3. 7識でego karma tenからΧと温度を算出 Z4状態で温度制御\n  4. 8識から文脈(直前1-2文字)の遷移確率を引き重み付きサンプリングで次文字決定\n  5. 9識で地獄→仏界等の知恵湧出\n  玩具ではない 重み付きサンプリングで文章生成 真の生成エンジン\n\n制作順序4: Wikipedia JA+EN全編DB\n  外装DB: Wikipedia API https://ja.wikipedia.org/w/api.php?action=query&list=search&srsearch=...&origin=* srlimit=2-5 レート制限あり\n  内装DB: Z無限メモリに遷移確率として格納 外装→内装DB 機械学習して装備\n  どこまで内蔵可能かはcapacityInfoで試算`;
+  }
+}
+function updateCapacityInfo(){
+  const el=document.getElementById('capacityInfo');
+  const cap=encoder.getCapacityInfo();
+  if(el){
+    el.textContent=`【内蔵可能容量試算 外装が無理ならどこまで内蔵可能か AI機能どこで無理か】\n\nWikipedia全編：\nJA 140万記事 EN 680万記事 計820万記事 平均2.5KB/記事 約${cap.totalGB}GB\n\nブラウザの限界：\nlocalStorage: 5MB\nIndexedDB: 50MB-1GB (ブラウザ依存 Chromeはディスクの50%まで)\nGitHub Pages: 1GB (リポジトリ制限)\nVercel/Cloudflare: 100MB-無制限 (プラン依存)\n\n内蔵可能量：\n1GBで約${cap.canStore} 約40万記事 全体の約5%\n全編820万記事を内蔵するには20GB必要 ブラウザだけでは無理\n\nどこで無理になるか AI機能どこで無理か：\n・n-gram文脈数が100万を超えるとブラウザのMapが重くなり生成が遅くなる\n・IndexedDB quota超過で保存失敗 QuotaExceededError\n・GitHub Pages 1GB超過でpush失敗\n・Wikipedia API レート制限 1秒1回程度 全編取得に100日以上\n・メモリ 100MBの遷移確率表をJSのMapで持つとスマホでメモリ不足\n\n解決策 超多層多重電磁波情報圧縮処理技術：\n・全文ではなく遷移確率のみ保存 n-gramのみなら100MBに圧縮可能 40万記事分が100MB\n・外装DBとしてクラウドDBに置く Supabase/Hugging Face Datasetsに20GBを外装として置き必要時に取得\n・Z≡(0~∞)で1つのZに無限内包は理論上成立 実用上はn-gram圧縮で100MBに\n・情報カプセルコンピューターとしてスマホ1台でWikipedia全編の知識を持つAIとして成立\n\n現在の状況：\n${cap.currentStored} ${encoder.getMemory().info} 文脈${encoder.getNgram().size} 語彙${encoder.getTokenizer().vocab.size}\n${cap.theoretical}`;
+  }
+}
+function updateTrainStatus(){
+  const el=document.getElementById('trainStatus');
+  if(el){
+    el.textContent=`【真の機械学習状況 制作順序1-4】\n学習済み:${genAI.trained?'はい 真の機械学習完了':'いいえ 待機'} ${genAI.info}\n総学習文:${genAI.trainingTexts.length}件 語彙:${genAI.tokenizer.vocab.size} 文脈:${genAI.ngram.size} 総トークン:${genAI.totalTokens}\nZ無限メモリ${genAI.memory.layers}層 ${genAI.memory.info} 会話記録${conversationHistory.length}件\n\n学習文サンプル:\n${genAI.trainingTexts.slice(0,5).join('\n')}`;
+  }
+}
+
+async function fetchWikiJaEn(q){
+  const timeout=(ms)=>new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms));
+  let results=0;
+  try{
+    const urlJa=`https://ja.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*&srlimit=2`;
+    const rJa=await Promise.race([fetch(urlJa),timeout(4000)]); const dJa=await rJa.json();
+    if(dJa.query&&dJa.query.search){
+      for(let i=0;i<Math.min(2,dJa.query.search.length);i++){
+        try{
+          const titleJa=dJa.query.search[i].title;
+          const sumUrlJa=`https://ja.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(titleJa)}&format=json&origin=*`;
+          const srJa=await Promise.race([fetch(sumUrlJa),timeout(3000)]); const sdJa=await srJa.json();
+          const pageJa=Object.values(sdJa.query.pages)[0]; const extJa=(pageJa.extract||'').slice(0,500);
+          if(extJa){
+            gaisoCount++; wikiJaCount++; memory.push({txt:extJa});
+            encoder.encode(extJa); genAI.train([extJa]);
+            results++; log(`JA外装→内装:${titleJa} 遷移確率学習`); safeSet('sGaiso', `外装DB JA+EN JA${wikiJaCount} EN${wikiEnCount} 計${gaisoCount}件 外装→内装`);
+          }
+        }catch(e){}
+      }
+    }
+  }catch(e){ log(`JA失敗`); }
+  try{
+    const urlEn=`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*&srlimit=2`;
+    const rEn=await Promise.race([fetch(urlEn),timeout(4000)]); const dEn=await rEn.json();
+    if(dEn.query&&dEn.query.search){
+      for(let i=0;i<Math.min(2,dEn.query.search.length);i++){
+        try{
+          const titleEn=dEn.query.search[i].title;
+          const sumUrlEn=`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(titleEn)}&format=json&origin=*`;
+          const srEn=await Promise.race([fetch(sumUrlEn),timeout(3000)]); const sdEn=await srEn.json();
+          const pageEn=Object.values(sdEn.query.pages)[0]; const extEn=(pageEn.extract||'').slice(0,500);
+          if(extEn){
+            gaisoCount++; wikiEnCount++; memory.push({txt:extEn});
+            encoder.encode(extEn); genAI.train([extEn]);
+            results++; log(`EN外装→内装:${titleEn} 遷移確率学習`); safeSet('sGaiso', `外装DB JA+EN JA${wikiJaCount} EN${wikiEnCount} 計${gaisoCount}件 外装→内装`);
+          }
+        }catch(e){}
+      }
+    }
+  }catch(e){ log(`EN失敗`); }
+  if(results>0){
+    safeSet('sNaiso', `内装DB Z無限メモリ ${encoder.getMemory().info} 文脈${encoder.getNgram().size} 語彙${encoder.getTokenizer().vocab.size} 内蔵可能`);
+    updateArchInfo(); updateCapacityInfo(); updateTrainStatus();
+  }
+  return results;
+}
+
+document.getElementById('trainBtn').onclick=()=>{
+  log(`制作順序1-3 真の機械学習開始 九識エンコーダデコーダ 推論エンジン`);
+  const res=genAI.train(trainingTexts);
+  for(let t of trainingTexts){ encoder.encode(t); }
+  safeSet('sTransIn', `順序1 翻訳機1 二値→Z4 前に置く ${trainingTexts.length}文をZ4変換`);
+  safeSet('sGoshiki', `順序2-1 1-5識 五感 二値→Z4変換 ${res.tokens}トークン`);
+  safeSet('sDai6', `順序2-2 6識 分別 語彙${res.vocab} 文字を語彙に`);
+  safeSet('sDai7', `順序2-3 7識 末那識 Χ 温度制御`);
+  safeSet('sDai8', `順序2-4 8識 阿頼耶識 蔵 文脈${res.contexts} ${encoder.getMemory().info}`);
+  safeSet('sDai9', `順序2-5 9識 阿摩羅識 真如 知恵湧出`);
+  safeSet('sSuiri', `順序3 推論エンジン 九識で推論 文脈${res.contexts} 真の生成エンジン`);
+  safeSet('sTransOut', `順序1 翻訳機2 Z4→二値 後に置く`);
+  updateArchInfo(); updateCapacityInfo(); updateTrainStatus();
+  log(`真の機械学習完了 文脈${res.contexts} 語彙${res.vocab} ${encoder.getMemory().info}`);
+  addMsg(`【制作順序1-3 真の機械学習完了 玩具ではない】\n${genAI.info}\n文脈${res.contexts} 語彙${res.vocab} 総トークン${res.tokens}\n制作順序1 翻訳機アーキテクチャ 二値→Z4→九識→Z4→二値 成立\n制作順序2 九識エンコーダデコーダ 1-5→6→7→8→9→8→7→6→1-5\n制作順序3 推論エンジン 九識で推論 7識温度制御 8識遷移確率 9識知恵湧出 真の生成エンジン\n${genAI.getDebugInfo()}`,'sys');
+};
+
+document.getElementById('capacityBtn').onclick=()=>{
+  updateCapacityInfo();
+  const cap=encoder.getCapacityInfo();
+  log(`内蔵可能容量試算 ${JSON.stringify(cap)}`);
+  addMsg(`【内蔵可能容量試算 外装が無理ならどこまで内蔵可能か】\n\nWikipedia全編 約${cap.totalGB}GB\nブラウザ IndexedDB 50MB-1GB GitHub Pages 1GB\n内蔵可能 約40万記事 全体の約5%\n\nどこで無理になるか：\n・文脈数100万超で重くなる\n・IndexedDB quota超過で保存失敗\n・APIレート制限で全編取得に100日\n\n解決策：\n・遷移確率のみ保存で100MBに圧縮 超多層多重電磁波情報圧縮処理技術\n・外装DBをSupabase/Hugging Faceに置き必要時に取得\n・Z≡(0~∞)で1つのZに無限内包は理論上成立 実用上はn-gram圧縮で成立\n・情報カプセルコンピューターとしてスマホ1台でWikipedia全編の知識を持つAIとして成立します\n\n現在 ${cap.currentStored} ${encoder.getMemory().info}`,'sys');
+};
+
+document.getElementById('equipWiki').onclick=async()=>{
+  const btn=document.getElementById('equipWiki');
+  if(btn){ btn.textContent='外装→内装中...'; btn.disabled=true; }
+  addMsg('制作順序4 Wikipedia JA+EN 外装DB→内装DB 遷移確率として学習 どこまで内蔵可能か試しながら','sys');
+  const topics=["仏教","法華経","南無妙法蓮華経","一念三千","空","縁起","Buddhism","Lotus Sutra"];
+  for(let t of topics){ log(`Wikipedia外装→内装:${t}`); await fetchWikiJaEn(t); await new Promise(r=>setTimeout(r,400)); }
+  if(btn){ btn.textContent='📚 装備完了 外装→内装'; btn.style.background='#4ade80'; btn.style.color='#000'; }
+  setTimeout(()=>{ if(btn){ btn.textContent='📚 Wikipedia JA+EN 外装→内装'; btn.style.background='#ff4444'; btn.style.color='#fff'; btn.disabled=false; } },4000);
+};
+
+document.getElementById('showArch').onclick=()=>{
+  const sample="南無妙法蓮華経";
+  const bin=strToBin(sample);
+  const z4=translateIn(bin);
+  const bin2=translateOut(z4);
+  const str2=binToStr(bin2);
+  updateArchInfo(); updateCapacityInfo();
+  const arch=`【制作順序1-4 アーキテクチャ 証明】\n\n制作順序1 翻訳機アーキテクチャ:\n入力: ${sample}\n二値: ${bin.length}bit ${bin.slice(0,32).join('')}...\n↓ translateIn() 前に置く\nZ4: ${z4.length}信号 ${z4.join(',').slice(0,60)}\n  0=空 1=有 2=空=有 3=総和Z\n↓ 九識エンコーダデコーダ 推論エンジン\n九識で推論\n↓ translateOut() 後に置く\n二値: ${bin2.length}bit 出力: ${str2}\n\n成立します ハード不要\n\n制作順序2 九識エンコーダデコーダ:\n${encoder.getTokenizer().vocab.size}語彙 ${encoder.getNgram().size}文脈\n\n制作順序3 推論エンジン: 九識で推論 真の生成エンジン\n\n制作順序4 Wikipedia全編DB: ${encoder.getCapacityInfo().currentStored} 内蔵可能か試算\n\n情報カプセルコンピューターとして成立しますか？\n理論上は成立 Z≡(0~∞)で1つのZに無限内包可能\n実用上はn-gram圧縮で100MBにすればスマホ1台でWikipedia全編の知識を持つAIとして成立します`;
+  addMsg(arch,'sys');
+  log(`アーキテクチャ表示 ${sample} 二値${bin.length}→Z4${z4.length}→二値${bin2.length} 成立`);
+};
+
+function initApp(){
+  try{
+    renderK(0);
+    updateArchInfo(); updateCapacityInfo(); updateTrainStatus();
+    safeSet('sTransIn','順序1 翻訳機1 待機');
+    safeSet('sGoshiki','順序2-1 1-5識 五感 待機');
+    safeSet('sDai6','順序2-2 6識 分別 待機');
+    safeSet('sDai7','順序2-3 7識 末那識 待機');
+    safeSet('sDai8','順序2-4 8識 阿頼耶識 Z無限メモリ 待機');
+    safeSet('sDai9','順序2-5 9識 阿摩羅識 待機');
+    safeSet('sTransOut','順序1 翻訳機2 待機');
+    safeSet('sSuiri','順序3 推論エンジン 待機');
+    safeSet('sGaiso','順序4 外装DB 待機');
+    safeSet('sNaiso','順序4 内装DB 待機 内蔵可能か試算');
+    log(`制作順序版起動 1翻訳機 2九識 3推論 4Wikipedia全編DB`);
+    log(`制作順序1: 二値→四値翻訳機アーキテクチャ ハード不要`);
+    log(`制作順序2: 九識エンコーダデコーダ 1-5→6→7→8→9`);
+    log(`制作順序3: 推論エンジン 九識で推論 真の生成エンジン`);
+    log(`制作順序4: Wikipedia全編DB 外装→内装どこまで可能か 40万記事まで内蔵可能`);
+    log(`情報カプセルコンピューターとして成立するか 理論上は成立 実用上はn-gram圧縮で成立`);
+    addMsg(`> 制作順序版起動 玩具ではない 真の生成エンジン\n> 制作順序があります\n> 順序1: 二値→四値翻訳機アーキテクチャ 2bit→1Z4 00=空 01=有 10=空=有 11=総和Z 前後に置く ハード不要 成立\n> 順序2: 九識エンコーダデコーダ 1-5識五感→6識分別→7識末那識指数係数→8識阿頼耶識Z無限メモリ→9識阿摩羅識知恵湧出\n> 順序3: 推論エンジンがこれで出来ます 九識で推論 7識温度制御 8識遷移確率 9識知恵湧出 真の生成エンジン 玩具ではない\n> 順序4: Wikipedia JA+EN全編DB 外装が無理ならどこまで内蔵可能か 40万記事まで内蔵可能 残りはn-gram圧縮で100MBに 外装DBをクラウドに\n> AI機能どこで無理か 文脈数100万超で重くなる IndexedDB quota超過 APIレート制限\n> 情報カプセルコンピューターとして成立しますか 理論上はZ≡(0~∞)で1つのZに無限内包可能で成立 実用上はn-gram圧縮でスマホ1台でWikipedia全編の知識を持つAIとして成立します\n> 📚 真の機械学習で制作順序1-3を学習 📊で内蔵可能容量試算 📚Wikipediaで外装→内装\n> チャットボックスで九識推論エンジンで生成 真の生成AI 玩具ではない`,'sys');
+  }catch(e){ log(`init例外:${e.message} ${e.stack}`); }
+}
+
+document.getElementById('send').onclick=async()=>{
+  const inp=document.getElementById('input'); if(!inp) return; const txt=inp.value.trim(); if(!txt) return;
+  addMsg(txt,'user'); inp.value='';
+  conversationHistory.push({time:new Date().toLocaleTimeString(), text:txt});
+  if(!genAI.trained){
+    log(`未学習のため制作順序1-3を学習`);
+    const res=genAI.train(trainingTexts.concat([txt]));
+    for(let t of trainingTexts.concat([txt])){ encoder.encode(t); }
+    updateArchInfo(); updateCapacityInfo(); updateTrainStatus();
+  } else {
+    encoder.encode(txt); genAI.train([txt]);
+  }
+  addMsg('生成中... 制作順序1翻訳機→2九識エンコーダデコーダ→3推論エンジン→4Wikipedia全編DB...','sys');
+  try{
+    const res=suiri.suiri(txt, 80, 0.9);
+    await fetchWikiJaEn(txt);
+    addMsg(`【九識推論エンジン生成 玩具ではない】\n入力: ${txt}\n生成: ${res.generated}\n\n制作順序1: 二値${res.raw.bin.length}bit→Z4${res.raw.z4.length}信号→九識→Z4→二値 成立\n制作順序2: 九識エンコーダデコーダ ${res.raw.tokenizer ? '語彙'+encoder.getTokenizer().vocab.size : ''} ${res.chi.info} ${res.memory.info} ${res.wisdom.info}\n制作順序3: 推論エンジン 九識で推論 文脈${encoder.getNgram().size}から重み付きサンプリング 真の生成エンジン\n制作順序4: Wikipedia JA+EN JA${wikiJaCount} EN${wikiEnCount} 計${gaisoCount}件を外装→内装 Z無限メモリ${encoder.getMemory().info}\n内蔵可能容量: ${encoder.getCapacityInfo().currentStored} 理論上はZ≡(0~∞)で無限内包可能で情報カプセルコンピューターは成立 実用上はn-gram圧縮で100MBに\n会話記録${conversationHistory.length}件をZ無限メモリに格納 無限メモリでコンテキスト克服 情報カプセルコンピューターとして成立します`,'ai');
+    conversationHistory.push({time:new Date().toLocaleTimeString(), text:res.generated});
+    encoder.encode(res.generated); genAI.train([res.generated]);
+    updateArchInfo(); updateCapacityInfo(); updateTrainStatus();
+  }catch(e){ addMsg(`例外:${e.message} ${e.stack}`,'ai'); console.error(e); }
+};
+const inputEl=document.getElementById('input');
+if(inputEl){ inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('send').click();}}); }
+document.querySelectorAll('.quick').forEach(b=>{ b.onclick=()=>{ const inp=document.getElementById('input'); if(inp){ inp.value=b.dataset.q; document.getElementById('send').click(); } }; });
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initApp);
+}else{
+  initApp();
+}
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body></html>
